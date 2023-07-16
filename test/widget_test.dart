@@ -7,13 +7,28 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:stream_chat_application/main.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    final client = StreamChatClient(
+      apiKey,
+      logLevel: Level.INFO,
+    );
+    var sharedPreferences = await SharedPreferences.getInstance();
+    String? userId = sharedPreferences.getString("userId");
+    var userToken = client.devToken(userId!).rawValue.split("=")[0];
+    await client.connectUser(User(id: userId), userToken);
+
+    final channel = client.channel('messaging', id: "flutter stream chat");
+    await tester.pumpWidget(MyApp(
+      streamChatClient: client,
+      channel: channel,
+    ));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
