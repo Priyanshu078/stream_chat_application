@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class ChannelPage extends StatelessWidget {
   const ChannelPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: Colors.white,
+      appBar: const StreamChannelHeader(
+          // title: Text("Priyanshu Paliwal"),
+          ),
+      body: Column(
+        children: const [
+          Expanded(child: StreamMessageListView()),
+          StreamMessageInput()
+        ],
+      ),
     );
   }
 }

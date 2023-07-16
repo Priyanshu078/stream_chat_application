@@ -1,10 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stream_chat_application/channelpage.dart';
 import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
-const apiKey = "ggr2qmcw4f3k";
+import 'channel_list_page.dart';
 
+const apiKey = "ggr2qmcw4f3k";
+// const userToken =
+//     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoid2lzcHktbWF0aC0xIn0.3L0bNkL3yp52jCJyAk8i7MAetsPSpm6QybpsnT7bgHk";
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final client = StreamChatClient(
@@ -16,11 +20,13 @@ void main() async {
   if (sharedPreferences.getString("userId") == null) {
     await sharedPreferences.setString("userId", userId);
   }
-  var userToken = client.devToken(userId).rawValue;
+
+  String userToken = client.devToken(userId).rawValue;
+
   await client.connectUser(User(id: userId), userToken);
 
-  final channel = client.channel('messaging', id: "flutter stream chat");
-
+  final channel = client.channel('messaging', id: "flutterStreamChat");
+  await channel.create();
   await channel.watch();
 
   runApp(MyApp(
@@ -39,20 +45,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Stream Chat Application',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      theme: ThemeData(primaryColor: Colors.blue),
+      builder: (context, widget) {
+        return StreamChat(
+          client: streamChatClient,
+          child: widget,
+        );
+      },
+      home: StreamChannel(
+        channel: channel,
+        child: const ChannelPage(),
       ),
-      // builder: (context, widget) {
-      //   return StreamChat(
-      //     client: streamChatClient,
-      //     child: widget,
-      //   );
-      // },
-      // home: StreamChannel(
-      //   channel: channel,
-      //   child: const ChannelPage(),
-      // ),
     );
   }
 }
