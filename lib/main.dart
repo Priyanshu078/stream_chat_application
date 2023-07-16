@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
-void main() {
+const apiKey = "ggr2qmcw4f3k";
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final client = StreamChatClient(
+    apiKey,
+    logLevel: Level.INFO,
+  );
+  var sharedPreferences = await SharedPreferences.getInstance();
+  String userId = sharedPreferences.getString("userId") ?? const Uuid().v4();
+  if (sharedPreferences.getString("userId") == null) {
+    await sharedPreferences.setString("userId", userId);
+  }
+  var userToken = client.devToken(userId).rawValue.split("=")[0];
+  await client.connectUser(User(id: userId), userToken);
   runApp(const MyApp());
 }
 
